@@ -29,6 +29,9 @@ var articleIds=[];
 
 var Data = [];
 
+// 统计文件数量
+var n = 0; 
+
 //声明 存储文件路径
 var filePath="./"+keyWord+"/";
 
@@ -50,7 +53,7 @@ function getHtml(url){
             });
             res.on("end",function(){
                 Data.push(html)
-                resolve(Data);
+                resolve(html);
             });
         }).on("error",function(e){
             reject(e);
@@ -98,29 +101,23 @@ function getArticle(html){
        console.log(fileTitle+"文件创建成功")
     })
 }
-
 for(var i = 1 ; i<page+1;i++){
-    contentArray = getHtml(baseUrl+i);
+    getHtml(baseUrl+i).then(function(pages){
+        articleIds=getArticleId(pages)
+        articleIds.map(function(item,index){
+            n++;
+            console.log("第"+n+"个文件正在创建")
+            getArticleHtml(articleBaseUrl+item).then(function(data){
+                getArticle(data)
+            }).catch(function(e){
+                console.log(e)
+            })
+        })
+    }).catch(function(e){
+        console.log(e)
+    })
 }
 
-Promise.all(contentArray)
-.then(function(pages){
-    console.log(pages.length);
-    pages.map(function(data,index){
-        articleIds=articleIds.concat(getArticleId(data))
-    })
-    articleIds.map(function(item,index){
-        var n=index+1
-        console.log("第"+n+"个文件正在创建")
-        getArticleHtml(articleBaseUrl+item).then(function(data){
-            getArticle(data)
-        }).catch(function(e){
-            console.log(e)
-        })
-    })
-})
-.catch(function(e){
-    console.log(e)
-})
+
 
 
