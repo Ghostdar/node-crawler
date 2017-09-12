@@ -27,8 +27,6 @@ var contentArray = [];
 // 声明 文章id存储数组
 var articleIds=[];
 
-var Data = [];
-
 // 统计文件数量
 var n = 0; 
 
@@ -44,25 +42,6 @@ fs.exists(filePath, (exists) => {
 
 // 爬取内容页面
 function getHtml(url){
-    return new Promise(function(resolve,reject){
-        http.get(url,function(res){
-            console.log("正在爬取:"+url);
-            var html = '';
-            res.on("data",function(data){
-                html+=data;
-            });
-            res.on("end",function(){
-                Data.push(html)
-                resolve(html);
-            });
-        }).on("error",function(e){
-            reject(e);
-            console.log("爬取出错");
-        });
-    });
-}
-//爬取文章内容页面
-function getArticleHtml(url){
     return new Promise(function(resolve,reject){
         http.get(url,function(res){
             console.log("正在爬取:"+url);
@@ -107,7 +86,7 @@ for(var i = 1 ; i<page+1;i++){
         articleIds.map(function(item,index){
             n++;
             console.log("第"+n+"个文件正在创建")
-            getArticleHtml(articleBaseUrl+item).then(function(data){
+            getHtml(articleBaseUrl+item).then(function(data){
                 getArticle(data)
             }).catch(function(e){
                 console.log(e)
